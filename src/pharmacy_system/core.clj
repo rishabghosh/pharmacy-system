@@ -44,23 +44,24 @@
              )
   )
 
-(defn update-items [initials curr-transactions]
-  (let [from-location (curr-transactions :from)
-        to-location (curr-transactions :to)]
-    (let [new-initials (update-items-of-location initials curr-transactions from-location -)]
-      (update-items-of-location new-initials curr-transactions to-location +))
+(defn update-items [initials curr-transaction]
+  (let [from-location (curr-transaction :from)
+        to-location (curr-transaction :to)]
+    ;put initials as the first arg of the first call and that result as the first arg of second call
+    (-> initials
+        (update-items-of-location curr-transaction from-location -)
+        (update-items-of-location curr-transaction to-location +))
     )
   )
 
 (defn calculate-final-items [initials transactions]
   (loop [initials initials
          transactions transactions]
-    (let [curr-transaction (first transactions)]
-      (if (empty? transactions)
-        initials
-        (recur
-          (update-items initials curr-transaction)
-          (rest transactions)
-          )))))
+    (if (empty? transactions)
+      initials
+      (recur
+        (update-items initials (first transactions))
+        (rest transactions)
+        ))))
 
 (calculate-final-items (create-initials) (create-transaction-logs))
